@@ -1,0 +1,9 @@
+body { max-width: 34rem; margin: 4rem auto; padding: 0 1.25rem; font: 16px/1.6 system-ui, -apple-system, sans-serif; color: #000; background: #fff; }
+h1, h2 { font-size: 1rem; font-weight: 600; margin: 0; }
+h2 { margin-top: 2rem; }
+p, ul { margin: 0 0 1.5rem; }
+ul { padding-left: 1.1rem; }
+ul.plain { list-style: none; padding: 0; }
+li { margin-bottom: .4rem; }
+a { color: inherit; }
+code { font-size: .9em; }

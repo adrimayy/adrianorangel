@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>songdeck — Adriano Rangel-Guzman</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<p><a href="./">← Adriano Rangel-Guzman</a></p>
+
+<h1>songdeck</h1>
+<p>A Python program that turns a Spotify playlist into an Anki deck that teaches you to name each song from its first 10 seconds, hum how it starts, and say who made it. One command builds the whole deck. A friend uses it for his own playlist.</p>
+
+<h2>Why</h2>
+<p>I wanted to name songs from their intros the way you'd recall vocabulary. Spaced repetition makes that possible, but making the cards by hand takes hours, so I automated it.</p>
+
+<h2>How it works</h2>
+<ul>
+  <li><b>Read.</b> Pulls a playlist through the Spotify API (OAuth login), or reads an exported CSV. It repairs malformed rows instead of dropping songs.</li>
+  <li><b>Pick.</b> A <code>pick</code> command ranks songs across all 183 of my playlists by how many of them each song is in, plus my listening history. That's how my ~300-song "Favorites" deck was chosen.</li>
+  <li><b>Match.</b> Finds each song on YouTube and checks that the length, title and artist all match Spotify's.</li>
+  <li><b>Clip.</b> Downloads in parallel, trims leading silence, evens out volume and cuts the intro.</li>
+  <li><b>Build.</b> Generates the deck with several card types (intro → title, title → hum it, title → artist) and spreads new cards out so a day's review stays manageable.</li>
+</ul>
+
+<h2>What I learned</h2>
+<ul>
+  <li><b>Checking length isn't enough.</b> The first version matched videos by length only, and it linked a song to a different song by the same band that happened to run the same length. I added strict title and artist matching and tested it against 23 real cases.</li>
+  <li><b>Long jobs fail halfway.</b> Every step is cached, so a rerun only does new songs. A dropped connection pauses the build instead of corrupting it.</li>
+  <li><b>Setup is part of the product.</b> I cut the setup from Homebrew, ffmpeg and a virtual environment down to <code>uv</code> with bundled ffmpeg, so a friend could install it in about 20 minutes.</li>
+</ul>
+</body>
+</html>

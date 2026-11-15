@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vocab ladders — Adriano Rangel-Guzman</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<p><a href="./">← Adriano Rangel-Guzman</a></p>
+
+<h1>Vocab ladders</h1>
+<p>Two Anki decks, built in Python, that start at the edge of what I already know and climb from there: <i>English Vocab Ladder (CS)</i> and <i>Spanish Vocab Ladder (MX)</i>.</p>
+
+<h2>Why</h2>
+<p>I grew up speaking Spanish at home, and my vocabulary has gaps in both languages. Generic word lists waste time on words I know, so each deck starts with a placement quiz.</p>
+
+<h2>How they're made</h2>
+<ul>
+  <li><b>Placement quiz.</b> Up to three adaptive rounds sample each level, with a "Not sure" option so guessing doesn't inflate the result. The English deck placed me around the 5,000–7,000 most common word families.</li>
+  <li><b>Leveled by real standards.</b> English levels follow frequency bands (Nation's bands, Coxhead's Academic Word List), computed with the <code>wordfreq</code> package instead of guessed. Spanish follows CEFR and the Instituto Cervantes, plus sections for Mexican, NYC Caribbean and Tampico slang.</li>
+  <li><b>Card design from memory research.</b> One fact per card. Two directions per word: recognize it in a sentence, then type it from its meaning. A draining timer pushes real recall, and only one element per card is highlighted. I skipped "memory fonts" because the research behind them doesn't replicate.</li>
+  <li><b>Build and check.</b> The decks are generated with <code>genanki</code>, with stable IDs so a rebuilt deck keeps my review progress. Before each release, cards are rendered at phone width in Playwright, day and night, and checked so every answer makes sense on its own.</li>
+</ul>
+
+<p>The whole process is written down as a reusable spec, so a new subject gets the same quiz, leveling and checks.</p>
+</body>
+</html>
