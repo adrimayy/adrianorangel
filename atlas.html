@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Where should you live? — Adriano Rangel-Guzman</title>
 <link rel="stylesheet" href="style.css">
+<script defer src="atlas-facts.js"></script>
 </head>
 <body>
 <p><a href="./">← Adriano Rangel-Guzman</a></p>
 
 <h1>Where should you live?</h1>
-<p>An interactive map that scores every country and 744 cities on 23 factors (jobs, money left after rent, healthcare, safety, freedom, climate, clean air and more). A 7-question quiz re-weights everything for you: your languages, your passports, your home city. Available in 8 languages.</p>
+<p>An interactive map that scores <span data-fact="countries">174</span> countries and <span data-fact="cities">744</span> cities on <span data-fact="factors">26</span> factors (jobs, money left after rent, healthcare, safety, freedom, climate, clean air and more). A short quiz, about a dozen questions that branch on your answers, weights them for you: any languages you speak, any passports you hold, any home city. Nothing is scored until you've answered it. Open a place to see what its score is made of, with the published figures and their sources, a real map and links to its pages elsewhere; most cities have a photo. In <span data-fact="languages">8</span> languages.</p>
 <p><a href="https://adrimayy.github.io/where-should-adriano-live/">Open it</a> · <a href="https://github.com/adrimayy/where-should-adriano-live">Code</a></p>
 
 <h2>Why</h2>
@@ -19,13 +20,13 @@
 <h2>How it works</h2>
 <ul>
   <li><b>Data pipeline (Python).</b> Every figure comes from a published source (WHO, UN, FBI, BLS, Census, Eurostat, Freedom House, the World Happiness Report and others), stored one file per topic with its source and year. A build script turns them into 1–5 scores, with every cut-off in one file.</li>
-  <li><b>Missing data.</b> About a quarter of country values aren't published, and the gaps cluster in poorer, smaller countries. They're filled by a model using wealth, size and region, drawn 20 times so the uncertainty carries through, and tested by hiding known values. A factor whose estimates are off by more than a point isn't filled at all.</li>
+  <li><b>Missing data.</b> About a quarter of country values and a seventh of city values aren't published, and the gaps cluster in poorer, smaller countries. They're filled by a model using wealth, size and region, drawn 20 times so the uncertainty carries through, and tested by hiding known values. A factor whose estimates are off by more than a point isn't filled at all.</li>
   <li><b>Uncertainty.</b> Each score is recalculated 120 times with values moved by their likely error, so the page shows a range, not just a number. A sensitivity analysis (Sobol indices) checks how much the ranking depends on my own judgment calls.</li>
   <li><b>Front end.</b> Plain JavaScript, HTML and CSS with no build step, split into one file per part (quiz, scoring, map, panels).</li>
   <li><b>Tests.</b> Playwright clicks through the quiz, map and language switch on desktop and mobile. Other checks cover specific numbers, translations and data age, and a monthly GitHub Action flags sources older than a year.</li>
 </ul>
 
 <h2>How it changed</h2>
-<p>53 versions so far. The early ones show why the sourcing rules matter. The first formula put New York on top. Once New York's strongest factors turned out to be estimates and were replaced with published data, Utrecht led. Later versions added a measured job market and real temperatures, expert-style review (two measures that both counted rent were merged into one), any visitor's languages and passports, and every US metro area. The full history is in the <a href="https://github.com/adrimayy/where-should-adriano-live/blob/main/docs/CHANGELOG.md">changelog</a>, and the method is on <a href="https://github.com/adrimayy/where-should-adriano-live/blob/main/docs/METHODS.md">one page</a>.</p>
+<p>Now at release <span data-fact="release">70</span>, from <span data-fact="updated">2026-11-22</span>. The early releases show why the sourcing rules matter. The first formula put New York on top. Once New York's strongest factors turned out to be estimates and were replaced with published data, Utrecht led. Later versions added a measured job market and real temperatures, expert-style review (two measures that both counted rent were merged into one), any visitor's languages and passports, every US metro area, and a look at each place itself (what its score is made of, a photo, a real map). The full history is in the <a href="https://github.com/adrimayy/where-should-adriano-live/blob/main/docs/CHANGELOG.md">changelog</a>, and the method is on <a href="https://github.com/adrimayy/where-should-adriano-live/blob/main/docs/METHODS.md">one page</a>.</p>
 </body>
 </html>
