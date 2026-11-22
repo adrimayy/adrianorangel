@@ -13,6 +13,10 @@ atlas-facts.js Fills in the atlas's current counts on index.html and atlas.html
 CNAME          Custom domain for GitHub Pages
 ```
 
+## One domain for every project
+
+This repository is named `adrimayy.github.io`, which makes it the account's own site, so its domain covers every project on the account: a project repository with GitHub Pages turned on appears at `www.adrianorangel.org/<repository name>/` with nothing to set up, and its old `adrimayy.github.io` address redirects there. The atlas is at [www.adrianorangel.org/where-should-adriano-live](https://www.adrianorangel.org/where-should-adriano-live/). Don't rename this repository or give a project its own custom domain, or that stops.
+
 ## Numbers that keep themselves current
 
 The atlas publishes its own counts with each release, in [`data/facts.json`](https://github.com/adrimayy/where-should-adriano-live/blob/main/data/facts.json): release, the day it came out, cities, countries, factors, groups, languages. A number on this site that comes from there is written as `<span data-fact="cities">744</span>`, and `atlas-facts.js` replaces it with the live one when the page opens. The number typed in the page is only what shows if that file can't be reached, so nothing here needs editing when the atlas changes.
