@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EHHS Chrome Extension — Adriano Rangel-Guzman</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<p><a href="./">← Adriano Rangel-Guzman</a></p>
+
+<h1>EHHS Chrome Extension</h1>
+<p>A Chrome extension for East Hampton High School students: a home screen of school links in the toolbar, plus a timer on the icon that shows how many minutes are left in the period. I built it with Urban Reininger as part of the school's Coding and Computer Science curriculum, and still maintain it. <a href="https://github.com/adrimayy/EHHS-Chrome-Extension-v0.5.7">Source on GitHub</a>.</p>
+
+<h2>Why</h2>
+<p>Students juggled the grade portal, Classroom, guidance forms and a dozen study sites through bookmarks and searches. Having them one click away, and the period's time left always visible, saves that hunting all day.</p>
+
+<h2>How it works</h2>
+<ul>
+  <li><b>A home screen you arrange.</b> The popup is a grid of links that students rearrange like an iPhone home screen: hold to jiggle, drag to move, tap − to remove. An App Library holds the rest of the 117 links in 13 categories, with search, subject filters and custom links with uploaded icons.</li>
+  <li><b>A period timer that follows the bells.</b> The icon counts down the period and passing time from the school's bell schedules, including homeroom days, delays and early dismissal. It only runs on days students are in school.</li>
+  <li><b>Snow days without a release.</b> A teacher posts a delay or closing in one JSON file on GitHub, and every student's timer switches to the right bells within about 15 minutes.</li>
+  <li><b>Updates that respect what students chose.</b> When the link list changes, new links reach everyone's App Library and dead ones leave it, without undoing anyone's own arrangement or renamed links.</li>
+</ul>
+
+<h2>What I learned</h2>
+<ul>
+  <li><b>The browser decides when your code runs.</b> Chrome only wakes an extension about every 30 seconds, so the badge counts 30 seconds ahead (<i>4m</i> means at most four minutes left), and it schedules exact alarms during school hours and nothing at all at night or over breaks.</li>
+  <li><b>Make it maintainable by someone else.</b> Links, bells and the calendar live in plain data files, and a <code>npm run check</code> script catches typos, missing logos and calendar mistakes, so a teacher can update it without reading the code. Future school years are estimated from rules that held in every past calendar, so the timer never stops in September.</li>
+</ul>
+</body>
+</html>

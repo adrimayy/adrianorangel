@@ -7,6 +7,8 @@ index.html     Name, one-line intro, project list, contact links
 atlas.html     Where should you live? (how it was made)
 songdeck.html  songdeck (how it was made)
 vocab.html     Vocab ladders (how they were made)
+ehhs.html      EHHS Chrome Extension
+columbia-extension.html  Columbia extension (Chrome and Firefox)
 csi.html       Columbia Space Initiative
 style.css      Shared styles for every page
 atlas-facts.js Fills in the atlas's current counts on index.html and atlas.html

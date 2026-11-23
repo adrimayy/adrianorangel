@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Columbia extension — Adriano Rangel-Guzman</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<p><a href="./">← Adriano Rangel-Guzman</a></p>
+
+<h1>Columbia extension</h1>
+<p>My <a href="ehhs.html">EHHS extension</a> rebuilt for college: a browser home screen for the Columbia sites I open every day, organized around my own class schedule. It runs in both Chrome and Firefox from the same folder. <a href="https://github.com/adrimayy/Columbia-Chrome-Extension">Source on GitHub</a>.</p>
+
+<h2>Why</h2>
+<p>A college week has no bell schedule: every day is different, with long gaps between classes in different buildings. I wanted the toolbar to know what I have next and get me to that class's materials in one click. Anything I only open once a semester stays a bookmark.</p>
+
+<h2>How it works</h2>
+<ul>
+  <li><b>Now / Next.</b> The popup opens with the class I'm in or the one coming up: its room, time left and that class's own links, such as the course site during Advanced Programming or Gradescope during Econ.</li>
+  <li><b>A timer on the icon.</b> It counts down the class I'm in, and the hour before the next one. It's quiet on weekends, breaks and study days, and shows finals and one-off sessions such as a make-up lab.</li>
+  <li><b>A schedule page.</b> Today's classes with a progress bar and the free gaps between them, upcoming exams, and the week at a glance.</li>
+  <li><b>One file per semester.</b> Classes, rooms, the term's dates and breaks all live in one data file, so a new semester means editing that file and nothing else.</li>
+</ul>
+
+<h2>What I learned</h2>
+<ul>
+  <li><b>Most of a good rebuild is deciding what to keep.</b> The EHHS extension's home screen, editing page and link syncing carried over as they were. The bell schedules, snow-day announcements and 117-link catalog came out, replaced by a weekly class schedule and about 30 links I actually use.</li>
+  <li><b>One extension, two browsers.</b> Chrome runs extension background code as a service worker, and Firefox runs it as an event page. Listing both in the manifest, and loading files only where the service-worker way exists, lets the same folder pass Mozilla's validator and run in Chrome.</li>
+</ul>
+</body>
+</html>
