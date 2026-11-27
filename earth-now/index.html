@@ -2251,7 +2251,9 @@ function showCredit(){ credit.style.opacity = '1'; setTimeout(() => credit.style
 //  1. the brightening is undone, back to how cold each spot looked;
 //  2. for every region the coldness of its clear ground is found - the warmest readings around, land and sea apart,
 //     land allowed for its height - and taken off, so only what is colder than the ground under it counts as cloud;
-//  3. toward the poles the stored map takes over.
+//  3. where the ground itself reads as cold as the picture can show - it is maxed out at about freezing, which in
+//     winter is most land poleward of 40 degrees, and the polar seas - cloud cannot be told from ground at all, and
+//     there, as toward the poles, the stored map takes over.
 // What is left out: low cloud about as warm as the sea under it, which a heat picture cannot tell from the sea.
 function liveToCloud(v, W, H, stored, water, elev, w2, h2){
   const out = new Uint8Array(W*H), sh = Math.round(Math.log2(W/w2));
@@ -2294,10 +2296,27 @@ function liveToCloud(v, W, H, stored, water, elev, w2, h2){
       val = v2_; wgt = w2_;
     }
     for (let i = 0; i < nb; i++) t[i] = wgt[i] > 0 ? val[i]*wgt[i] + (g0[i] < 9 ? g0[i] + 0.06 : val[i])*(1 - wgt[i]) : g0[i] < 9 ? g0[i] + 0.06 : 9;
-    return t;
+    for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++){ let sv = 0, sw = 0;      // (smoothed once more: no block edges)
+      for (let dy = -2; dy <= 2; dy++){ const yy = y + dy; if (yy < 0 || yy >= bh) continue; for (let dx = -2; dx <= 2; dx++){ const q = t[yy*bw + ((x + dx + bw) % bw)]; if (q < 9){ sv += q; sw++; } } }
+      a[y*bw + x] = sw ? sv/sw : 9; }
+    return a;
   };
   const gL = ground(lowL, sumL, cntL, 6), gS = ground(lowS, sumS, cntS, 9);
   for (let i = 0; i < nb; i++){ if (gL[i] >= 9) gL[i] = gS[i] < 9 ? gS[i] : 0; if (gS[i] >= 9) gS[i] = gL[i]; }
+  // Open sea is never colder than a known amount for its latitude (measured on the picture itself: it reads 0 at
+  // 19 C or warmer, 1 at -7 C). So a storm wider than the search above cannot pass for cold sea.
+  for (let y = 0; y < bh; y++){
+    const la = 90 - (y + 0.5)/bh*180, sst = Math.max(271.4, 301 - 0.009*(la - 4)*(la - 4)), cap = Math.min(0.85, Math.max(0, (292 - sst)/26)) + 0.22;
+    for (let x = 0; x < bw; x++) if (gS[y*bw + x] > cap) gS[y*bw + x] = cap;
+  }
+  // lakes and narrow seas take after the land around them: how much of each neighbourhood is water
+  let wf = new Float32Array(nb);
+  { const f = w2/bw; for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) wf[y*bw + x] = water[Math.floor((y + 0.5)*f)*w2 + Math.floor((x + 0.5)*f)] > 127 ? 1 : 0;
+    for (let pass = 0; pass < 2; pass++){ const o = new Float32Array(nb);
+      for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++){ let sv = 0, n = 0;
+        for (let dy = -3; dy <= 3; dy++){ const yy = y + dy; if (yy < 0 || yy >= bh) continue; for (let dx = -3; dx <= 3; dx++){ sv += wf[yy*bw + ((x + dx + bw) % bw)]; n++; } }
+        o[y*bw + x] = sv/n; }
+      wf = o; } }
   const coast = new Uint8Array(w2*h2);                   // near a shore the picture and the map may not line up: take the colder ground
   for (let y = 0; y < h2; y++) for (let x = 0; x < w2; x++){ let lo = 255, hi = 0;
     for (let dy = -1; dy <= 1; dy++){ const yy = Math.min(h2 - 1, Math.max(0, y + dy)); for (let dx = -1; dx <= 1; dx++){ const q = water[yy*w2 + ((x + dx + w2) % w2)]; if (q < lo) lo = q; if (q > hi) hi = q; } }
@@ -2312,10 +2331,14 @@ function liveToCloud(v, W, H, stored, water, elev, w2, h2){
       const fx = (x + 0.5)/B - 0.5 + bw, x0 = Math.floor(fx), tx = fx - x0, xa = x0 % bw, xb = (x0 + 1) % bw;
       const lerp = g => (g[y0*bw + xa]*(1 - tx) + g[y0*bw + xb]*tx)*(1 - ty) + (g[y1*bw + xa]*(1 - tx) + g[y1*bw + xb]*tx)*ty;
       const j = r2 + (x >> sh), sea = water[j] > 127, gl_ = lerp(gL) + elev[j]*LK, gs_ = lerp(gS);
-      const e = cold[v[i]] - (coast[j] ? Math.max(gl_, gs_) : sea ? gs_ : gl_) - (sea && !coast[j] ? 0.04 : 0.08);
-      const c = e > 0 ? 0.9*(1 - Math.exp(-2.0*Math.min(e, 1)))/(1 - Math.exp(-2.0)) : 0;
+      const open = sea && !coast[j] && wf[Math.min(bh - 1, y >> 3)*bw + (x >> 3)] > 0.6;       // open sea, away from any shore
+      const gnd = open ? gs_ : sea || coast[j] ? Math.max(gl_, gs_) : gl_, mar = open ? 0.04 : 0.08;
+      // how far above its ground a spot reads, as a share of the room the picture has left above that ground
+      const e = Math.min(1, (cold[v[i]] - gnd - mar)/Math.max(0.25, 1 - gnd - mar));
+      const c = e > 0 ? 0.9*(1 - Math.exp(-2.0*e))/(1 - Math.exp(-2.0)) : 0;
       const live = c > 0 ? 255*(0.06 + 0.94*c) : 0;      // (the scale the stored map is on: see cfrac)
-      out[i] = Math.round(live + (stored[i] - live)*pole);
+      const blind = Math.max(pole, ss(0.72, 0.88, gnd)); // no room left above the ground: the picture cannot say
+      out[i] = Math.round(live + (stored[i] - live)*blind);
     }
   }
   return out;
