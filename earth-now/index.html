@@ -1147,6 +1147,7 @@ function loadTex(unit, url, uname, gray, maxW){
       else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB8, gl.RGB, gl.UNSIGNED_BYTE, src);
       if (uname === 'tTopo'){ gl.useProgram(P); gl.uniform1f(U.uTexR, src.width/(2*Math.PI)); }
       if (uname === 'tCloud' || uname === 'tWater') keepSmall(uname, img);
+      if (uname === 'tCloud' || uname === 'tWater' || uname === 'tTopo') rawImgs[uname] = img;
       gl.generateMipmap(gl.TEXTURE_2D);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -2061,17 +2062,24 @@ function lumDigest(){
     if (wv > 0){ const lwv = Math.pow(2, wv/65535*60 - 30); sumW += lwv; sumW2 += lwv*lwv; cntW++; surfY.push(Y0); } else { sumNS += Y; cntNS++; }
   }
   let La;
+  // A lit body the eye can look straight at - anything about half a degree across or more, like the Earth from the
+  // Moon - sets the eye's level, however little of the view it fills. (Before, one filling under 3% of the view left the
+  // eye adapted to the black around it, and the far Earth came out bleached.) Smaller than that, it does so only in part.
+  const cellDeg2 = (canvas.clientWidth/lw)*(canvas.clientHeight/lh)*CSS_PIX*CSS_PIX*3282.8;
+  const tS = Math.min(1, Math.max(0, (cntW*cellDeg2 - 0.03)/0.47)), body = cntW > 0.03*N ? 1 : tS*tS*(3 - 2*tS);
   // Constancy is only partial in dim light: sigma = 0.18 x white luminance in daylight, but follows
   // (Lw/Lday)^0.8 below it, so a moonlit Earth looks dim and grey rather than like day.
   // white reference of the LIT part of the view (light-weighted), so a thin sunlit crescent isn't averaged with the night
-  if (cntW > 0.03*N){ const Lw = sumW2/sumW, LD = 30000;
-    La = Math.max(0.25*LD*Math.pow(Math.min(Lw, LD)/LD, 0.8)*Math.max(1, Lw/LD), cntNS ? sumNS/cntNS : 0); }
-  else La = cnt > 0.03*N ? sumLit/cnt : sum/N;
+  const LaField = Math.max(1e-5, cnt > 0.03*N ? sumLit/cnt : sum/N);
+  if (body > 0 && sumW > 0){ const Lw = sumW2/sumW, LD = 30000;
+    const LaBody = Math.max(0.25*LD*Math.pow(Math.min(Lw, LD)/LD, 0.8)*Math.max(1, Lw/LD), body >= 1 && cntNS ? sumNS/cntNS : 0);
+    La = Math.exp(Math.log(LaField)*(1 - body) + Math.log(Math.max(LaBody, LaField))*body); }
+  else La = LaField;
   targetLogLa = Math.log10(Math.min(3e6, Math.max(1e-5, La)));   // cones adapt (bleach) up to ~1e6-1e7 cd/m²
   // Contrast constancy: the eye discounts an even veil (the air's blue haze over the whole disc), much as
   // calibrated imagery sets the darkest real surface as black. Black point = 55% of the 5th-percentile
   // surface luminance, capped so a uniform cloud deck isn't over-stretched.
-  if (surfY.length > 0.03*N){ surfY.sort((a, b) => a - b); blackTarget = 0.55*surfY[Math.floor(surfY.length*0.05)]; }
+  if (surfY.length > 0.03*N || (body >= 1 && surfY.length >= 8)){ surfY.sort((a, b) => a - b); blackTarget = 0.55*surfY[Math.floor(surfY.length*0.05)]; }
   else blackTarget = 0;
   if (blackTarget > 0 && cntW && blackTarget < 1e-4*sumW2/sumW) blackTarget = 0;
 }
@@ -2236,6 +2244,104 @@ credit.textContent = 'Contains modified EUMETSAT data';
 credit.style.cssText = 'position:fixed;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom));text-align:center;font:11px -apple-system,system-ui,sans-serif;color:rgba(255,255,255,0.55);pointer-events:none;opacity:0;transition:opacity 1.5s';
 document.body.appendChild(credit);
 function showCredit(){ credit.style.opacity = '1'; setTimeout(() => credit.style.opacity = '0', 4000); }
+// The live picture is not a map of cloud. It is a heat picture taken by weather satellites (cold = white), brightened
+// to look good as an overlay, so everything cold shows white: cloud tops, but also a desert at dawn, winter land,
+// polar seas. And it has nothing real poleward of 67 degrees (the satellites sit over the equator; the makers fill the
+// caps with a mirror image and white). So before it is used:
+//  1. the brightening is undone, back to how cold each spot looked;
+//  2. for every region the coldness of its clear ground is found - the warmest readings around, land and sea apart,
+//     land allowed for its height - and taken off, so only what is colder than the ground under it counts as cloud;
+//  3. toward the poles the stored map takes over.
+// What is left out: low cloud about as warm as the sea under it, which a heat picture cannot tell from the sea.
+function liveToCloud(v, W, H, stored, water, elev, w2, h2){
+  const out = new Uint8Array(W*H), sh = Math.round(Math.log2(W/w2));
+  const cold = new Float32Array(256);                    // (their recipe: stretch, gamma 1.46, x0.77, gamma 2)
+  for (let b = 0; b < 256; b++) cold[b] = Math.pow(Math.min(1, (b/255)**2/0.77), 1.46);
+  const LK = 0.13*6.4/255;                               // colder by this much per step of the height map (per 25 m)
+  const B = 8, bw = W/B, bh = H/B, nb = bw*bh;
+  const lowL = new Float32Array(nb*3).fill(9), lowS = new Float32Array(nb*3).fill(9);
+  for (let y = 0; y < H; y++){
+    const r2 = (y >> sh)*w2, rb = (y >> 3)*bw;
+    for (let x = 0; x < W; x++){
+      const j = r2 + (x >> sh), sea = water[j] > 127, k = cold[v[y*W + x]] - (sea ? 0 : elev[j]*LK);
+      const a = sea ? lowS : lowL, b = (rb + (x >> 3))*3;                       // keep the three warmest of the block
+      if (k < a[b + 2]){ if (k < a[b + 1]){ a[b + 2] = a[b + 1]; if (k < a[b]){ a[b + 1] = a[b]; a[b] = k; } else a[b + 1] = k; } else a[b + 2] = k; }
+    }
+  }
+  // ...then the usual coldness of each block's clear ground: the mean of its readings near that warm end
+  const sumL = new Float32Array(nb), cntL = new Float32Array(nb), sumS = new Float32Array(nb), cntS = new Float32Array(nb);
+  for (let y = 0; y < H; y++){
+    const r2 = (y >> sh)*w2, rb = (y >> 3)*bw;
+    for (let x = 0; x < W; x++){
+      const j = r2 + (x >> sh), sea = water[j] > 127, k = cold[v[y*W + x]] - (sea ? 0 : elev[j]*LK), b = rb + (x >> 3);
+      if (sea){ if (k <= lowS[b*3 + 2] + 0.10){ sumS[b] += k; cntS[b]++; } } else if (k <= lowL[b*3 + 2] + 0.10){ sumL[b] += k; cntL[b]++; }
+    }
+  }
+  // Clear-ground coldness everywhere: blocks whose warm end is close to the warmest within R blocks are taken as showing
+  // ground, and their values are spread smoothly over the rest (under cloud, the ground is read from its surroundings).
+  const ground = (low, sum, cnt, R) => {
+    const a = new Float32Array(nb), t = new Float32Array(nb), g0 = new Float32Array(nb);
+    for (let i = 0; i < nb; i++) a[i] = low[i*3 + 2] < 9 ? low[i*3 + 2] : low[i*3 + 1] < 9 ? low[i*3 + 1] : low[i*3];
+    for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++){ let m = 9; for (let d = -R; d <= R; d++){ const q = a[y*bw + ((x + d + bw) % bw)]; if (q < m) m = q; } t[y*bw + x] = m; }
+    for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++){ let m = 9; for (let d = -R; d <= R; d++){ const yy = y + d; if (yy < 0 || yy >= bh) continue; const q = t[yy*bw + x]; if (q < m) m = q; } g0[y*bw + x] = m; }
+    let val = new Float32Array(nb), wgt = new Float32Array(nb);
+    for (let i = 0; i < nb; i++) if (a[i] < 9 && a[i] <= g0[i] + 0.15){ val[i] = cnt[i] ? sum[i]/cnt[i] : a[i]; wgt[i] = 1; }
+    for (let pass = 0; pass < 2; pass++){                // (two box blurs of radius 3, weights carried along)
+      const v2_ = new Float32Array(nb), w2_ = new Float32Array(nb);
+      for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++){ let sv = 0, sw = 0;
+        for (let dy = -3; dy <= 3; dy++){ const yy = y + dy; if (yy < 0 || yy >= bh) continue; for (let dx = -3; dx <= 3; dx++){ const q = yy*bw + ((x + dx + bw) % bw); sv += val[q]*wgt[q]; sw += wgt[q]; } }
+        v2_[y*bw + x] = sw > 0 ? sv/sw : 0; w2_[y*bw + x] = sw > 0 ? Math.min(1, sw/6) : 0; }
+      val = v2_; wgt = w2_;
+    }
+    for (let i = 0; i < nb; i++) t[i] = wgt[i] > 0 ? val[i]*wgt[i] + (g0[i] < 9 ? g0[i] + 0.06 : val[i])*(1 - wgt[i]) : g0[i] < 9 ? g0[i] + 0.06 : 9;
+    return t;
+  };
+  const gL = ground(lowL, sumL, cntL, 6), gS = ground(lowS, sumS, cntS, 9);
+  for (let i = 0; i < nb; i++){ if (gL[i] >= 9) gL[i] = gS[i] < 9 ? gS[i] : 0; if (gS[i] >= 9) gS[i] = gL[i]; }
+  const coast = new Uint8Array(w2*h2);                   // near a shore the picture and the map may not line up: take the colder ground
+  for (let y = 0; y < h2; y++) for (let x = 0; x < w2; x++){ let lo = 255, hi = 0;
+    for (let dy = -1; dy <= 1; dy++){ const yy = Math.min(h2 - 1, Math.max(0, y + dy)); for (let dx = -1; dx <= 1; dx++){ const q = water[yy*w2 + ((x + dx + w2) % w2)]; if (q < lo) lo = q; if (q > hi) hi = q; } }
+    coast[y*w2 + x] = lo < 128 && hi > 127 ? 1 : 0; }
+  const ss = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a)/(b - a))); return t*t*(3 - 2*t); };
+  for (let y = 0; y < H; y++){
+    const lat = Math.abs(90 - (y + 0.5)/H*180), pole = ss(60, 67, lat), r2 = (y >> sh)*w2;
+    const fy = Math.min(bh - 1, Math.max(0, (y + 0.5)/B - 0.5)), y0 = Math.floor(fy), y1 = Math.min(bh - 1, y0 + 1), ty = fy - y0;
+    for (let x = 0; x < W; x++){
+      const i = y*W + x;
+      if (pole >= 1){ out[i] = stored[i]; continue; }
+      const fx = (x + 0.5)/B - 0.5 + bw, x0 = Math.floor(fx), tx = fx - x0, xa = x0 % bw, xb = (x0 + 1) % bw;
+      const lerp = g => (g[y0*bw + xa]*(1 - tx) + g[y0*bw + xb]*tx)*(1 - ty) + (g[y1*bw + xa]*(1 - tx) + g[y1*bw + xb]*tx)*ty;
+      const j = r2 + (x >> sh), sea = water[j] > 127, gl_ = lerp(gL) + elev[j]*LK, gs_ = lerp(gS);
+      const e = cold[v[i]] - (coast[j] ? Math.max(gl_, gs_) : sea ? gs_ : gl_) - (sea && !coast[j] ? 0.04 : 0.08);
+      const c = e > 0 ? 0.9*(1 - Math.exp(-2.0*Math.min(e, 1)))/(1 - Math.exp(-2.0)) : 0;
+      const live = c > 0 ? 255*(0.06 + 0.94*c) : 0;      // (the scale the stored map is on: see cfrac)
+      out[i] = Math.round(live + (stored[i] - live)*pole);
+    }
+  }
+  return out;
+}
+// (done off to the side, so the picture on screen does not freeze while it is worked out)
+function liveToCloudAside(a){
+  return new Promise(res => {
+    const here = () => res(liveToCloud(a.v, a.W, a.H, a.stored, a.water, a.elev, a.w2, a.h2));
+    try {
+      const src = liveToCloud.toString() + ';onmessage=e=>{const d=e.data,o=liveToCloud(d.v,d.W,d.H,d.stored,d.water,d.elev,d.w2,d.h2);postMessage(o,[o.buffer]);};';
+      const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' })), w = new Worker(url);
+      w.onmessage = e => { w.terminate(); URL.revokeObjectURL(url); res(e.data); };
+      w.onerror = () => { w.terminate(); URL.revokeObjectURL(url); here(); };
+      w.postMessage(a);
+    } catch(e){ here(); }
+  });
+}
+const pause = () => new Promise(r => setTimeout(r, 30));
+const rawImgs = {};
+function grayOf(src, w, h){                              // a picture's brightness as plain numbers
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(src, 0, 0, w, h);
+  const d = x.getImageData(0, 0, w, h).data, o = new Uint8Array(w*h);
+  for (let i = 0; i < o.length; i++) o[i] = d[i*4];
+  c.width = c.height = 0; return o;
+}
 async function loadLive(){
   try {
     let cache = null; try { cache = await caches.open('earth-live'); } catch(e){}
@@ -2248,18 +2354,26 @@ async function loadLive(){
       } catch(e){}
     }
     if (!resp || t === liveTime) return;
+    if (!(rawImgs.tCloud && rawImgs.tWater && rawImgs.tTopo)){ setTimeout(loadLive, 3000); return; }   // (the stored maps are needed to read it)
     const bmp = await createImageBitmap(await resp.blob());
+    const LW = lowMem ? 2048 : 4096, LH = LW/2;
+    const a = { W: LW, H: LH, w2: 2048, h2: 1024 };
+    a.v = grayOf(bmp, LW, LH); await pause(); a.stored = grayOf(rawImgs.tCloud, LW, LH); await pause();
+    a.water = grayOf(rawImgs.tWater, 2048, 1024); await pause(); a.elev = grayOf(rawImgs.tTopo, 2048, 1024); await pause();
+    const cloud = await liveToCloudAside(a);
     const tx = gl.createTexture(); gl.activeTexture(gl.TEXTURE10); gl.bindTexture(gl.TEXTURE_2D, tx);
     if (liveTex) gl.deleteTexture(liveTex);               // (the map it replaces)
     liveTex = tx;
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, gl.RED, gl.UNSIGNED_BYTE, bmp);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, LW, LH, 0, gl.RED, gl.UNSIGNED_BYTE, cloud);
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.useProgram(P); gl.uniform1i(U.tLive, 10);
     if (!liveTime) showCredit();
-    keepSmall('tCloud', bmp);
+    { const sm = new Uint8ClampedArray(360*180*4), f = LW/360;                  // a 1-degree copy, for placing thunderstorms
+      for (let j = 0; j < 180; j++) for (let i = 0; i < 360; i++) sm[(j*360 + i)*4] = cloud[Math.floor((j + 0.5)*f)*LW + Math.floor((i + 0.5)*f)];
+      smallMaps.tCloud = sm; storms = null; }
     liveTime = t; touch();
   } catch(e){}
 }
