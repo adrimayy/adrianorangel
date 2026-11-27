@@ -4,28 +4,170 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Adriano Rangel-Guzman</title>
-<meta name="description" content="Adriano Rangel-Guzman — CS @ Columbia, Class of 2029.">
+<meta name="description" content="Adriano Rangel-Guzman — CS @ Columbia, Class of 2029. Things I've built.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="style.css">
 <script defer src="atlas-facts.js"></script>
 </head>
-<body>
-<h1>Adriano Rangel-Guzman</h1>
-<p>CS @ Columbia, Class of 2029</p>
+<body class="home">
 
-<ul class="plain">
-  <li><a href="https://www.adrianorangel.org/where-should-adriano-live/">Where should you live?</a> — an interactive map that scores <span data-fact="countries">174</span> countries and <span data-fact="cities">744</span> cities on <span data-fact="factors">26</span> factors. <a href="atlas.html">How it was made</a>.</li>
-  <li><a href="https://www.adrianorangel.org/earth-now/">Earth Now</a> — a phone web app that shows the Earth as the naked eye would see it from space right now, online or off.</li>
-  <li><a href="songdeck.html">songdeck</a> — a program that turns Spotify playlists into Anki decks for naming songs from their intros.</li>
-  <li><a href="vocab.html">Vocab ladders</a> — leveled Anki decks for English (CS-oriented) and Spanish vocabulary.</li>
-  <li><a href="ehhs.html">EHHS Chrome Extension</a> — a home screen of school links and a period timer for East Hampton High School students.</li>
-  <li><a href="columbia-extension.html">Columbia extension</a> — the same idea rebuilt around my own class schedule, for Chrome and Firefox.</li>
-  <li><a href="csi.html">Columbia Space Initiative</a> — outreach co-director.</li>
-</ul>
+<header class="masthead">
+  <h1 class="logo">Adriano<span class="dot">.</span></h1>
+  <p class="tagline">Things I've built. CS @ Columbia, Class of 2029.</p>
+</header>
 
-<p>
-  <a href="mailto:adriano.r@columbia.edu">Email</a> ·
-  <a href="https://github.com/adrimayy">GitHub</a> ·
+<main class="grid">
+
+  <a class="card" href="https://www.adrianorangel.org/where-should-adriano-live/" style="--bg:#ffd84d">
+    <div class="art">
+      <svg viewBox="0 0 200 150" aria-hidden="true">
+        <path d="M30 40 L75 28 L125 42 L170 30 L170 115 L125 127 L75 113 L30 125 Z" fill="#fff6cc" stroke="#1d1d1f" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M75 28 L75 113 M125 42 L125 127" stroke="#1d1d1f" stroke-width="2.5" opacity=".35"/>
+        <path d="M48 98 C70 92 78 70 100 74 S130 96 150 64" fill="none" stroke="#e8505b" stroke-width="3" stroke-dasharray="6 6" stroke-linecap="round"/>
+        <g class="bob">
+          <path d="M150 64 C150 64 134 46 134 36 A16 16 0 0 1 166 36 C166 46 150 64 150 64 Z" fill="#e8505b" stroke="#1d1d1f" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="150" cy="36" r="6" fill="#fff" stroke="#1d1d1f" stroke-width="2.5"/>
+        </g>
+        <circle cx="48" cy="98" r="5" fill="#1d1d1f"/>
+      </svg>
+    </div>
+    <h2>Where should you live?</h2>
+    <p>Scores <span data-fact="countries">174</span> countries and <span data-fact="cities">744</span> cities on what you care about.</p>
+  </a>
+
+  <a class="card" href="https://www.adrianorangel.org/earth-now/" style="--bg:#0d1335">
+    <div class="art">
+      <svg viewBox="0 0 200 150" aria-hidden="true">
+        <g fill="#fff">
+          <circle cx="22" cy="20" r="1.4"/><circle cx="45" cy="118" r="1"/><circle cx="170" cy="22" r="1.6"/><circle cx="182" cy="96" r="1"/><circle cx="30" cy="70" r="1"/><circle cx="160" cy="132" r="1.3"/><circle cx="62" cy="34" r="1"/><circle cx="140" cy="12" r="1"/>
+        </g>
+        <defs>
+          <clipPath id="globe"><circle cx="100" cy="75" r="50"/></clipPath>
+          <radialGradient id="night" cx="38%" cy="40%" r="75%"><stop offset="45%" stop-color="#05081c" stop-opacity="0"/><stop offset="80%" stop-color="#05081c" stop-opacity=".85"/></radialGradient>
+        </defs>
+        <g class="spin-wrap" clip-path="url(#globe)">
+          <circle cx="100" cy="75" r="50" fill="#2a6fdb"/>
+          <g class="spin" fill="#3fae6b">
+            <path d="M60 48 C72 40 88 46 86 58 C84 70 70 66 66 78 C62 88 52 80 52 68 C52 58 54 52 60 48 Z"/>
+            <path d="M104 40 C118 36 132 44 128 54 C124 62 112 58 110 66 C108 76 120 82 116 94 C112 106 98 104 96 92 C94 80 100 74 98 64 C96 54 96 44 104 40 Z"/>
+            <path d="M136 82 C146 78 154 86 150 96 C146 104 136 102 134 94 C133 88 132 84 136 82 Z"/>
+            <path d="M200 48 C212 40 228 46 226 58 C224 70 210 66 206 78 C202 88 192 80 192 68 C192 58 194 52 200 48 Z"/>
+            <path d="M244 40 C258 36 272 44 268 54 C264 62 252 58 250 66 C248 76 260 82 256 94 C252 106 238 104 236 92 C234 80 240 74 238 64 C236 54 236 44 244 40 Z"/>
+          </g>
+          <g fill="#fff" opacity=".85">
+            <ellipse cx="78" cy="96" rx="16" ry="4"/><ellipse cx="120" cy="50" rx="12" ry="3"/><ellipse cx="98" cy="112" rx="10" ry="3"/>
+          </g>
+          <circle cx="100" cy="75" r="50" fill="url(#night)"/>
+        </g>
+        <circle cx="100" cy="75" r="50" fill="none" stroke="#9ec5ff" stroke-width="2" opacity=".6"/>
+      </svg>
+    </div>
+    <h2>Earth Now</h2>
+    <p>The Earth as your eye would see it from space, right now. Works offline.</p>
+  </a>
+
+  <a class="card" href="songdeck.html" style="--bg:#ff7aa8">
+    <div class="art">
+      <svg viewBox="0 0 200 150" aria-hidden="true">
+        <rect x="52" y="38" width="96" height="70" rx="10" fill="#ffd1e1" stroke="#1d1d1f" stroke-width="3" transform="rotate(-8 100 73)"/>
+        <rect x="52" y="38" width="96" height="70" rx="10" fill="#fff" stroke="#1d1d1f" stroke-width="3" transform="rotate(4 100 73)"/>
+        <g class="wave" stroke="#e23d7a" stroke-width="5" stroke-linecap="round">
+          <line x1="72" y1="66" x2="72" y2="84"/><line x1="84" y1="58" x2="84" y2="92"/><line x1="96" y1="64" x2="96" y2="86"/><line x1="108" y1="54" x2="108" y2="96"/><line x1="120" y1="62" x2="120" y2="88"/><line x1="132" y1="68" x2="132" y2="82"/>
+        </g>
+        <g class="bob" fill="#1d1d1f">
+          <path d="M158 22 L158 50 A8 7 0 1 1 152 44 L152 26 L176 20 L176 44 A8 7 0 1 1 170 38 L170 26 Z" />
+        </g>
+      </svg>
+    </div>
+    <h2>songdeck</h2>
+    <p>Turns Spotify playlists into flashcards for naming songs from their intros.</p>
+  </a>
+
+  <a class="card" href="vocab.html" style="--bg:#7fd8a6">
+    <div class="art">
+      <svg viewBox="0 0 200 150" aria-hidden="true">
+        <g stroke="#1d1d1f" stroke-width="4" stroke-linecap="round">
+          <line x1="62" y1="140" x2="82" y2="12"/><line x1="112" y1="140" x2="132" y2="12"/>
+          <line x1="66" y1="116" x2="116" y2="116"/><line x1="70" y1="88" x2="120" y2="88"/><line x1="75" y1="60" x2="125" y2="60"/><line x1="79" y1="32" x2="129" y2="32"/>
+        </g>
+        <g font-family="Fredoka, system-ui, sans-serif" font-weight="700" font-size="20" text-anchor="middle">
+          <g class="bob"><rect x="132" y="96" width="30" height="30" rx="6" fill="#fff" stroke="#1d1d1f" stroke-width="3"/><text x="147" y="118" fill="#1d1d1f">a</text></g>
+          <g class="bob d1"><rect x="140" y="58" width="30" height="30" rx="6" fill="#ffd84d" stroke="#1d1d1f" stroke-width="3"/><text x="155" y="80" fill="#1d1d1f">ñ</text></g>
+          <g class="bob d2"><rect x="30" y="40" width="30" height="30" rx="6" fill="#fff" stroke="#1d1d1f" stroke-width="3"/><text x="45" y="62" fill="#1d1d1f">Ω</text></g>
+        </g>
+      </svg>
+    </div>
+    <h2>Vocab ladders</h2>
+    <p>Leveled flashcard decks for English (CS-flavored) and Spanish words.</p>
+  </a>
+
+  <a class="card" href="ehhs.html" style="--bg:#7fb2ff">
+    <div class="art">
+      <svg viewBox="0 0 200 150" aria-hidden="true">
+        <rect x="30" y="24" width="140" height="104" rx="10" fill="#fff" stroke="#1d1d1f" stroke-width="3"/>
+        <path d="M30 44 H170" stroke="#1d1d1f" stroke-width="3"/>
+        <circle cx="44" cy="34" r="3.5" fill="#e8505b"/><circle cx="56" cy="34" r="3.5" fill="#ffd84d"/><circle cx="68" cy="34" r="3.5" fill="#3fae6b"/>
+        <g stroke="#1d1d1f" stroke-width="2.5">
+          <rect x="44" y="56" width="22" height="22" rx="5" fill="#ff7aa8"/><rect x="74" y="56" width="22" height="22" rx="5" fill="#7fd8a6"/><rect x="44" y="88" width="22" height="22" rx="5" fill="#ffd84d"/><rect x="74" y="88" width="22" height="22" rx="5" fill="#ff9d4d"/>
+        </g>
+        <circle cx="136" cy="84" r="22" fill="#eef4ff" stroke="#1d1d1f" stroke-width="3"/>
+        <circle class="ring" cx="136" cy="84" r="16" fill="none" stroke="#2a6fdb" stroke-width="6" stroke-dasharray="100.5" stroke-dashoffset="30" stroke-linecap="round" transform="rotate(-90 136 84)"/>
+        <text x="136" y="89" font-family="Fredoka, system-ui, sans-serif" font-weight="700" font-size="14" text-anchor="middle" fill="#1d1d1f">12</text>
+      </svg>
+    </div>
+    <h2>EHHS Chrome Extension</h2>
+    <p>School links and a period timer for East Hampton High School.</p>
+  </a>
+
+  <a class="card" href="columbia-extension.html" style="--bg:#b9d9eb">
+    <div class="art">
+      <svg viewBox="0 0 200 150" aria-hidden="true">
+        <rect x="30" y="24" width="140" height="104" rx="10" fill="#fff" stroke="#1d1d1f" stroke-width="3"/>
+        <path d="M30 44 H170" stroke="#1d1d1f" stroke-width="3"/>
+        <circle cx="44" cy="34" r="3.5" fill="#e8505b"/><circle cx="56" cy="34" r="3.5" fill="#ffd84d"/><circle cx="68" cy="34" r="3.5" fill="#3fae6b"/>
+        <g font-family="Fredoka, system-ui, sans-serif" font-weight="600" font-size="9" fill="#1d1d1f" text-anchor="middle">
+          <text x="54" y="58">M</text><text x="78" y="58">T</text><text x="102" y="58">W</text><text x="126" y="58">T</text><text x="150" y="58">F</text>
+        </g>
+        <g stroke="#1d1d1f" stroke-width="2">
+          <rect x="44" y="64" width="20" height="18" rx="4" fill="#1d4f91"/><rect x="92" y="64" width="20" height="18" rx="4" fill="#1d4f91"/><rect x="140" y="64" width="20" height="18" rx="4" fill="#1d4f91"/>
+          <rect x="68" y="88" width="20" height="26" rx="4" fill="#ffd84d"/><rect x="116" y="88" width="20" height="26" rx="4" fill="#ffd84d"/>
+          <rect x="44" y="96" width="20" height="18" rx="4" fill="#ff7aa8"/><rect x="92" y="92" width="20" height="14" rx="4" fill="#7fd8a6"/>
+        </g>
+        <path class="bob" d="M162 18 L168 30 L181 31 L171 40 L174 53 L162 46 L150 53 L153 40 L143 31 L156 30 Z" fill="#ffd84d" stroke="#1d1d1f" stroke-width="2.5" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h2>Columbia extension</h2>
+    <p>The same idea rebuilt around my class schedule, for Chrome and Firefox.</p>
+  </a>
+
+  <a class="card" href="csi.html" style="--bg:#ff9d4d">
+    <div class="art">
+      <svg viewBox="0 0 200 150" aria-hidden="true">
+        <g fill="#fff" opacity=".9"><circle cx="30" cy="30" r="2"/><circle cx="170" cy="40" r="2.5"/><circle cx="150" cy="120" r="1.8"/><circle cx="40" cy="110" r="2"/></g>
+        <circle cx="160" cy="34" r="14" fill="#ffe9d1" stroke="#1d1d1f" stroke-width="3"/>
+        <g class="launch">
+          <g transform="rotate(35 100 80)">
+            <path d="M100 26 C118 44 120 74 116 100 L84 100 C80 74 82 44 100 26 Z" fill="#fff" stroke="#1d1d1f" stroke-width="3" stroke-linejoin="round"/>
+            <circle cx="100" cy="62" r="9" fill="#7fb2ff" stroke="#1d1d1f" stroke-width="3"/>
+            <path d="M84 84 L68 106 L84 102 Z M116 84 L132 106 L116 102 Z" fill="#e8505b" stroke="#1d1d1f" stroke-width="3" stroke-linejoin="round"/>
+            <path class="flame" d="M88 102 C90 116 96 122 100 130 C104 122 110 116 112 102 Z" fill="#ffd84d" stroke="#1d1d1f" stroke-width="2.5" stroke-linejoin="round"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <h2>Columbia Space Initiative</h2>
+    <p>Outreach co-director: space-science programs for kids.</p>
+  </a>
+
+</main>
+
+<footer class="links">
+  <a href="mailto:adriano.r@columbia.edu">Email</a>
+  <a href="https://github.com/adrimayy">GitHub</a>
   <a href="https://www.linkedin.com/in/adriano-rangel/">LinkedIn</a>
-</p>
+</footer>
+
 </body>
 </html>
