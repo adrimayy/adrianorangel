@@ -14,7 +14,7 @@ code { font-size: .9em; background: #0000000a; padding: .1em .35em; border-radiu
 .masthead h1 { font: 600 clamp(2rem, 5.5vw, 3rem)/1.1 var(--display); letter-spacing: -.015em; margin: 0; }
 .masthead p { margin: .75rem 0 0; color: var(--soft); font-size: 1.05rem; }
 
-.grid { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; display: grid; gap: 2.5rem 1.5rem; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); }
+.grid { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; display: grid; gap: 2.5rem 1.5rem; grid-template-columns: repeat(auto-fill, minmax(min(232px, 100%), 1fr)); }
 .card { text-decoration: none; display: flex; flex-direction: column; }
 .card .art {
   aspect-ratio: 4 / 3; border-radius: var(--radius); overflow: hidden; background: var(--bg);
@@ -41,7 +41,7 @@ code { font-size: .9em; background: #0000000a; padding: .1em .35em; border-radiu
 /* Phones: two tiles per row */
 @media (max-width: 560px) {
   .masthead { padding: 3.25rem 1rem 2rem; }
-  .grid { grid-template-columns: 1fr 1fr; gap: 1.75rem .9rem; padding: 0 1rem; }
+  .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.75rem .9rem; padding: 0 1rem; }
   .card .art { --radius: 12px; padding: 6%; }
   .card .art.bleed { padding: 0; }
   .card .art.type b { font-size: 1.6rem; }
