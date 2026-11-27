@@ -31,3 +31,7 @@ The atlas publishes its own counts with each release, in [`data/facts.json`](htt
 3. Commit and push to `main`. GitHub Pages updates in about a minute.
 
 No build step. Open any page in a browser to preview it.
+
+## When you change style.css
+
+Raise the `?v=` after `style.css` in every page's `<link>` (all pages use the same one). Browsers keep the old stylesheet for a while otherwise, and the new pages show up with the old styles.
